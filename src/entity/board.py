@@ -1,5 +1,3 @@
-from entity.position import Position
-
 class Board:
     def __init__(self):
         """

@@ -1,10 +1,7 @@
 from tkinter import *
-from PIL import ImageTk, Image
-from entity.board import Board
-from entity.location import Location
-from entity.piece import Piece
-from entity.player import Player
-from entity.position import Position
+from src.entity.board import Board
+from src.entity.piece import Piece
+from src.entity.player import Player
 
 
 #import boardTable.png
