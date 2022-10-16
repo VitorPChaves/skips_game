@@ -1,14 +1,17 @@
 from tkinter import *
-from src.entity.board import Board
-from src.entity.piece import Piece
-from src.entity.player import Player
+from tkinter import simpledialog, messagebox
 
+import sys
+sys.path.insert(0, '../src')
 
-#import boardTable.png
-#from tkmacosx import Button
-#from tkinter import messagebox
+from entity.board import Board
+from entity.piece import Piece
+from entity.player import Player
 
-class ActorPlayer:
+from dog.dog_interface import DogPlayerInterface
+from dog.dog_actor import DogActor
+
+class ActorPlayer(DogPlayerInterface):
     def __init__(self):
         self.window = Tk()
         self.window.title('SKIPS')
@@ -61,6 +64,22 @@ class ActorPlayer:
         self.peca4.grid(row=0, column=self.piece4.getLocation(), padx=10)
         self.peca5.grid(row=1, column=self.piece5.getLocation(), padx=10)
         self.peca6.grid(row=2, column=self.piece6.getLocation(), padx=10)
+
+        # Cria uma menu bar para poder iniciar a partida
+        self.menubar = Menu(self.window)
+        self.menubar.option_add("*tearOff", FALSE)
+        self.window["menu"] = self.menubar
+
+        self.menu_file = Menu(self.menubar)
+        self.menubar.add_cascade(menu=self.menu_file, label="File")
+
+        self.menu_file.add_command(label="Iniciar jogo", command=self.start_match)
+        self.menu_file.add_command(label="Restaurar estado inicial", command=self.start_game)
+
+        player_name = simpledialog.askstring(title="Player identification", prompt="Qual o seu nome?")
+        self.dog_server_interface = DogActor()
+        message = self.dog_server_interface.initialize(player_name, self)
+        messagebox.showinfo(message=message)
 
         self.window.mainloop()
 
@@ -216,6 +235,18 @@ class ActorPlayer:
         self.peca4.grid(column=self.piece4.getLocation())
         self.peca5.grid(column=self.piece5.getLocation())
         self.peca6.grid(column=self.piece6.getLocation())
+
+    def start_match(self):
+        start_status = self.dog_server_interface.start_match(2)
+        message = start_status.get_message()
+        messagebox.showinfo(message=message)
+
+    def receive_start(self, start_status):
+        message = start_status.get_message()
+        messagebox.showinfo(message=message)
+
+    def start_game(self):
+        return 0
 
 ActorPlayer()
 

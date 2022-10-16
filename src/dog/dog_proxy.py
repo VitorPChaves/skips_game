@@ -2,8 +2,11 @@ from distutils.command.config import config
 import json
 from urllib.parse import urldefrag
 import requests
-from src.dog.start_status import StartStatus
 
+import sys
+sys.path.insert(0, '../src')
+
+from dog.start_status import StartStatus
 
 class DogProxy:
     def __init__(self):
