@@ -23,13 +23,13 @@ class ActorPlayer(DogPlayerInterface):
         self.localPlayer = Player()
         self.remotePlayer = Player()
 
-        self.peca1 = Button(self.window, text="*", height=3, width=6, highlightbackground='#0000FF', command=lambda: self.jogada(self.peca1))
-        self.peca2 = Button(self.window, text="**", height=3, width=6, highlightbackground='#0000FF', command=lambda: self.jogada(self.peca2))
-        self.peca3 = Button(self.window, text="***", height=3, width=6, highlightbackground='#0000FF', command=lambda: self.jogada(self.peca3))
+        self.peca1 = Button(self.window, text="*", height=3, width=6, highlightbackground='#0000FF', command=lambda: self.move(self.peca1))
+        self.peca2 = Button(self.window, text="**", height=3, width=6, highlightbackground='#0000FF', command=lambda: self.move(self.peca2))
+        self.peca3 = Button(self.window, text="***", height=3, width=6, highlightbackground='#0000FF', command=lambda: self.move(self.peca3))
 
-        self.peca4 = Button(self.window, text="#", height=3, width=6, highlightbackground='#F7EC3E', command=lambda: self.jogada(self.peca4))
-        self.peca5 = Button(self.window, text="##", height=3, width=6, highlightbackground='#F7EC3E', command=lambda: self.jogada(self.peca5))
-        self.peca6 = Button(self.window, text="###", height=3, width=6, highlightbackground='#F7EC3E', command=lambda: self.jogada(self.peca6))
+        self.peca4 = Button(self.window, text="#", height=3, width=6, highlightbackground='#F7EC3E', command=lambda: self.move(self.peca4))
+        self.peca5 = Button(self.window, text="##", height=3, width=6, highlightbackground='#F7EC3E', command=lambda: self.move(self.peca5))
+        self.peca6 = Button(self.window, text="###", height=3, width=6, highlightbackground='#F7EC3E', command=lambda: self.move(self.peca6))
 
         self.piece1 = Piece(False, 1, 0)
         self.piece2 = Piece(False, 2, 0)
@@ -59,7 +59,7 @@ class ActorPlayer(DogPlayerInterface):
         self.peca2.grid(row=1, column=self.piece2.getLocation(), padx=10)
         self.peca3.grid(row=2, column=self.piece3.getLocation(), padx=10)
 
-        self.drawBoard()
+        self.draw_board()
 
         self.peca4.grid(row=0, column=self.piece4.getLocation(), padx=10)
         self.peca5.grid(row=1, column=self.piece5.getLocation(), padx=10)
@@ -83,62 +83,52 @@ class ActorPlayer(DogPlayerInterface):
 
         self.window.mainloop()
 
-    def drawBoard(self):
+    def draw_board(self):
         # Adiciona as posições no tabuleiro para o tkinter não "comer" as posições depois de adicionar as peças
         for p in range(6):
             position = Label(self.window, text="*", height=3, width=6, highlightbackground='#FA241B')
             position.grid(row=0, column=(p+1))
 
-    def jogada(self, piece):
+    def move(self, piece):
         if (piece["text"]=="*"):
             #garante que a peça vai ficar na linha do tabuleiro
             piece.grid(row=1, column=self.piece1.getLocation())
-            self.possibleMoves(self.piece1)
-            self.updateGrid()
+            self.possible_moves(self.piece1)
+            self.update_grid()
 
         elif (piece["text"]=="**"):
             # garante que a peça vai ficar na linha do tabuleiro
             piece.grid(row=1, column=self.piece2.getLocation())
-            self.possibleMoves(self.piece2)
-            self.updateGrid()
+            self.possible_moves(self.piece2)
+            self.update_grid()
 
         elif (piece["text"]=="***"):
             # garante que a peça vai ficar na linha do tabuleiro
             piece.grid(row=1, column=self.piece3.getLocation())
-            self.possibleMoves(self.piece3)
-            self.updateGrid()
+            self.possible_moves(self.piece3)
+            self.update_grid()
 
         elif (piece["text"]=="#"):
             # garante que a peça vai ficar na linha do tabuleiro
             piece.grid(row=1, column=self.piece4.getLocation())
-            self.possibleMoves(self.piece4)
-            self.updateGrid()
+            self.possible_moves(self.piece4)
+            self.update_grid()
 
         elif (piece["text"]=="##"):
             # garante que a peça vai ficar na linha do tabuleiro
             piece.grid(row=1, column=self.piece5.getLocation())
-            self.possibleMoves(self.piece5)
-            self.updateGrid()
+            self.possible_moves(self.piece5)
+            self.update_grid()
 
         elif (piece["text"]=="###"):
             # garante que a peça vai ficar na linha do tabuleiro
             piece.grid(row=1, column=self.piece6.getLocation())
-            self.possibleMoves(self.piece6)
-            self.updateGrid()
+            self.possible_moves(self.piece6)
+            self.update_grid()
 
-    """
-    def checkConditions(self, piece, location: Location):
-        if (piece["text"]=="**"):
-            nextLocation = self.possibleMoves(piece)
-            if self.piece2.getLocation() == 2 or self.piece2.getLocation() == 5:
-                self.window.messagebox.showinfo(title=None, message="Invalid Move")
-                print("Invalid Move")
-                return False
-        return True
-    """
-
-    def possibleMoves(self, piece: Piece):
+    def possible_moves(self, piece: Piece):
         currentLocation = piece.getLocation()
+        change_turn = False
 
         if (piece.identifier == 1):
             for i in range(1):
@@ -149,24 +139,34 @@ class ActorPlayer(DogPlayerInterface):
                     # só para o botão sair do tabuleiro já que não encontrei uma função pra visibility
                     currentLocation = 20
                 elif currentLocation < 7:
+                    # checa se tem alguma peça na posição do tabuleiro, se tiver pula uma posiçao
                     for p in self.piecesInformations:
                         if p.getLocation() == currentLocation:
                             currentLocation += 1
             piece.setLocation(currentLocation)
+            # setChangeTurn(change_turn)
 
         elif (piece.identifier == 2):
             for i in range(2):
                 currentLocation += 1
                 # falta checar a quantidade de passos possíveis para a peça finalizar o tabuleiro
-                if currentLocation == 7:
+                if currentLocation == 7 and i == 2:
                     print("Piece Finished!")
                     # só para o botão sair do tabuleiro já que não encontrei uma função pra visibility
                     currentLocation = 20
+                    change_turn = True
+                elif currentLocation == 7 and i < 2:
+                    print("Movimento Invalido")
+                    # change state to movimento invalido para alterar a mensagem
+                    # change turn continua falso
                 elif currentLocation < 7:
+                    # checa se tem alguma peça na posição do tabuleiro, se tiver pula uma posiçao
                     for p in self.piecesInformations:
                         if p.getLocation() == currentLocation:
                             currentLocation += 1
+                            change_turn = True
             piece.setLocation(currentLocation)
+            # setChangeTurn(change_turn)
 
         elif (piece.identifier == 3):
             for i in range(3):
@@ -224,13 +224,13 @@ class ActorPlayer(DogPlayerInterface):
                             currentLocation -= 1
             piece.setLocation(currentLocation)
 
-    def updateGrid(self):
+    def update_grid(self):
 
         self.peca1.grid(column=self.piece1.getLocation())
         self.peca2.grid(column=self.piece2.getLocation())
         self.peca3.grid(column=self.piece3.getLocation())
 
-        self.drawBoard()
+        self.draw_board()
 
         self.peca4.grid(column=self.piece4.getLocation())
         self.peca5.grid(column=self.piece5.getLocation())
