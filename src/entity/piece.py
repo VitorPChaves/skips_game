@@ -1,8 +1,9 @@
 class Piece:
-    def __init__(self, finished: bool, identifier: int, location: int):
+    def __init__(self, finished: bool, identifier: int, location: int, state: int):
         self.finished = finished
         self.identifier = identifier
         self.location = location
+        self.state = state
 
     def setFinished(self, finished: bool):
         self.finished = finished
@@ -21,3 +22,9 @@ class Piece:
 
     def getLocation(self):
         return self.location
+
+    def setState(self, state: int):
+        self.state = state
+
+    def getState(self):
+        return self.state
