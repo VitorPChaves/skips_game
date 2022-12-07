@@ -28,3 +28,4 @@ class Piece:
 
     def getState(self):
         return self.state
+

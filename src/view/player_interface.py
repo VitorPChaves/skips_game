@@ -24,39 +24,39 @@ class ActorPlayer(DogPlayerInterface):
         self.localPlayer = Player()
         self.remotePlayer = Player()
 
-        self.peca1 = Button(self.window, text="*", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.move(self.peca1))
-        self.peca2 = Button(self.window, text="**", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.move(self.peca2))
-        self.peca3 = Button(self.window, text="***", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.move(self.peca3))
+        self.b1_piece = Piece(False, 1, 1, 1)
+        self.b2_piece = Piece(False, 2, 1, 1)
+        self.b3_piece = Piece(False, 3, 1, 1)
 
-        self.peca4 = Button(self.window, text="#", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.move(self.peca4))
-        self.peca5 = Button(self.window, text="##", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.move(self.peca5))
-        self.peca6 = Button(self.window, text="###", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.move(self.peca6))
+        self.y1_piece = Piece(False, -1, 8, 1)
+        self.y2_piece = Piece(False, -2, 8, 1)
+        self.y3_piece = Piece(False, -3, 8, 1)
 
-        self.piece1 = Piece(False, 1, 1, 1)
-        self.piece2 = Piece(False, 2, 1, 1)
-        self.piece3 = Piece(False, 3, 1, 1)
+        self.b1_piece_button = Button(self.window, text="*", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.move(self.b1_piece_button, self.b1_piece))
+        self.b2_piece_button = Button(self.window, text="**", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.move(self.b2_piece_button, self.b2_piece))
+        self.b3_piece_button = Button(self.window, text="***", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.move(self.b3_piece_button, self.b3_piece))
 
-        self.piece4 = Piece(False, -1, 8, 1)
-        self.piece5 = Piece(False, -2, 8, 1)
-        self.piece6 = Piece(False, -3, 8, 1)
+        self.y1_piece_button = Button(self.window, text="#", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.move(self.y1_piece_button, self.y1_piece))
+        self.y2_piece_button = Button(self.window, text="##", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.move(self.y2_piece_button, self.y2_piece))
+        self.y3_piece_button = Button(self.window, text="###", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.move(self.y3_piece_button, self.y3_piece))
 
         self.piecesInformations = []
-        self.piecesInformations.append(self.piece1)
-        self.piecesInformations.append(self.piece2)
-        self.piecesInformations.append(self.piece3)
-        self.piecesInformations.append(self.piece4)
-        self.piecesInformations.append(self.piece5)
-        self.piecesInformations.append(self.piece6)
+        self.piecesInformations.append(self.b1_piece)
+        self.piecesInformations.append(self.b2_piece)
+        self.piecesInformations.append(self.b3_piece)
+        self.piecesInformations.append(self.y1_piece)
+        self.piecesInformations.append(self.y2_piece)
+        self.piecesInformations.append(self.y3_piece)
 
-        self.peca1.grid(row=1, column=self.piece1.getLocation())
-        self.peca2.grid(row=2, column=self.piece2.getLocation())
-        self.peca3.grid(row=3, column=self.piece3.getLocation())
+        self.b1_piece_button.grid(row=1, column=self.b1_piece.getLocation())
+        self.b2_piece_button.grid(row=2, column=self.b2_piece.getLocation())
+        self.b3_piece_button.grid(row=3, column=self.b3_piece.getLocation())
 
         self.draw_board()
 
-        self.peca4.grid(row=1, column=self.piece4.getLocation())
-        self.peca5.grid(row=2, column=self.piece5.getLocation())
-        self.peca6.grid(row=3, column=self.piece6.getLocation())
+        self.y1_piece_button.grid(row=1, column=self.y1_piece.getLocation())
+        self.y2_piece_button.grid(row=2, column=self.y2_piece.getLocation())
+        self.y3_piece_button.grid(row=3, column=self.y3_piece.getLocation())
 
         # Cria uma menu bar para poder iniciar a partida
         self.menubar = Menu(self.window)
@@ -94,133 +94,73 @@ class ActorPlayer(DogPlayerInterface):
             position = Button(self.window, text="-", height=3, width=3, highlightbackground='#F0160F')
             position.grid(row=4, column=p)
 
-    def move(self, piece):
+    def move(self, piece_button, piece):
 
+        if (piece_button["text"]=="*"):
+            # keeps the piece in the correct column
+            self.possible_moves(piece)
+            self.update_grid(piece_button, piece)
 
-        if (piece["text"]=="*"):
-            # garante que a peça vai ficar na linha do tabuleiro
-            piece.grid(row=2, column=self.piece1.getLocation())  # RESOLVER piece1.getLocation()
-            self.possible_moves(self.piece1)
-            self.update_grid()
+        elif (piece_button["text"]=="**"):
+            self.possible_moves(piece)
+            self.update_grid(piece_button, piece)
 
-        elif (piece["text"]=="**"):
-            # garante que a peça vai ficar na linha do tabuleiro
-            piece.grid(row=2, column=self.piece2.getLocation())
-            self.possible_moves(self.piece2)
-            self.update_grid()
+        elif (piece_button["text"]=="***"):
+            self.possible_moves(piece)
+            self.update_grid(piece_button, piece)
 
-        elif (piece["text"]=="***"):
-            # garante que a peça vai ficar na linha do tabuleiro
-            piece.grid(row=2, column=self.piece3.getLocation())
-            self.possible_moves(self.piece3)
-            self.update_grid()
+        elif (piece_button["text"]=="#"):
+            self.possible_moves(piece)
+            self.update_grid(piece_button, piece)
 
-        elif (piece["text"]=="#"):
-            # garante que a peça vai ficar na linha do tabuleiro
-            piece.grid(row=2, column=self.piece4.getLocation())
-            self.possible_moves(self.piece4)
-            self.update_grid()
+        elif (piece_button["text"]=="##"):
+            self.possible_moves(piece)
+            self.update_grid(piece_button, piece)
 
-        elif (piece["text"]=="##"):
-            # garante que a peça vai ficar na linha do tabuleiro
-            piece.grid(row=2, column=self.piece5.getLocation())
-            self.possible_moves(self.piece5)
-            self.update_grid()
+        elif (piece_button["text"]=="###"):
+            self.possible_moves(piece)
+            """
+            if piece.getState() == 1:
+                piece_button.grid(row=3, column=piece.getLocation())
+            else:
+                piece_button.grid(row=2, column=piece.getLocation())  # RESOLVER b1_piece.getLocation()
+            """
+            self.update_grid(piece_button, piece)
 
-        elif (piece["text"]=="###"):
-            # garante que a peça vai ficar na linha do tabuleiro
-            piece.grid(row=2, column=self.piece6.getLocation())
-            self.possible_moves(self.piece6)
-            self.update_grid()
+    def piece_can_move(self, piece):
+        # checar se a peça pode parar de se mover em determinada posição
+        # if piece.identifier == 3 or piece.identifier == -3
+            # piece.getPostion() == 4 or piece.getPosition() == 5
+                # print("Movimento Invalido, peca bloqueada!")
+                # devolve a peça para a ultima posicao
+                # change state to movimento invalido
+                # change state to piece blocked
+                # if all pieces blocked player lost
 
+        if piece.identifier == 1 or piece.identifier == -1:
+            if piece.getLocation() == 4 or piece.getLocation() == 5:
+                return False
+            else:
+                return True
+
+        elif piece.identifier == 2 or piece.identifier == -2:
+            if piece.getLocation() == 3 or piece.getLocation() == 6:
+                return False
+            else:
+                return True
+
+        elif piece.identifier == 3 or piece.identifier == -3:
+            if piece.getLocation() == 2 or piece.getLocation() == 7:
+                return False
+            else:
+                return True
+        else:
+            return True
 
     def possible_moves(self, piece: Piece):
         current_location = piece.getLocation()
         last_location = piece.getLocation()
         progress = 0
-
-        # if piece.identifier > 0
-        # else if piece.identifier < 0
-
-        """
-        if (piece.identifier == 1):
-            for i in range(1):
-                current_location += 1
-                # falta checar a quantidade de passos possíveis para a peça finalizar o tabuleiro
-                if current_location == 7:
-                    print("Piece Finished!")
-                    # só para o botão sair do tabuleiro já que não encontrei uma função pra visibility
-                    current_location = 9
-                elif current_location < 7:
-                    # checa se tem alguma peça na posição do tabuleiro, se tiver pula uma posiçao
-                    for p in self.piecesInformations:
-                        if p.getLocation() == current_location:
-                            current_location += 1
-
-
-        elif (piece.identifier == 2):
-            for i in range(2):
-                current_location += 1
-                # falta checar a quantidade de passos possíveis para a peça finalizar o tabuleiro
-                if current_location == 7 and i == 2:
-                    print("Piece Finished!")
-                    # só para o botão sair do tabuleiro já que não encontrei uma função pra visibility
-                    current_location = 9
-                    change_turn = True
-                elif current_location == 7 and i < 2:
-                    print("Movimento Invalido")
-                    # change state to movimento invalido para alterar a mensagem
-                    # change turn continua falso
-                elif current_location < 7:
-                    # checa se tem alguma peça na posição do tabuleiro, se tiver pula uma posiçao
-                    for p in self.piecesInformations:
-                        if p.getLocation() == current_location:
-                            current_location += 1
-            #piece.setLocation(current_location)
-            # setChangeTurn(change_turn)
-
-        elif (piece.identifier == 3):
-            for i in range(3):
-                current_location += 1
-                # falta checar a quantidade de passos possíveis para a peça finalizar o tabuleiro
-                if current_location == 7:
-                    print("Piece Finished!")
-                    # só para o botão sair do tabuleiro já que não encontrei uma função pra visibility
-                    current_location = 9
-                elif current_location < 7:
-                    for p in self.piecesInformations:
-                        if p.getLocation() == current_location:
-                            current_location += 1
-            #piece.setLocation(current_location)
-
-        elif (piece.identifier == -1):
-            for i in range(1):
-                current_location -= 1
-                # falta checar a quantidade de passos possíveis para a peça finalizar o tabuleiro
-                if current_location == 1:
-                    print("Piece Finished!")
-                    # só para o botão sair do tabuleiro já que não encontrei uma função pra visibility
-                    current_location = 0
-                elif current_location > 0:
-                    for p in self.piecesInformations:
-                        if p.getLocation() == current_location:
-                            current_location -= 1
-            #piece.setLocation(current_location)
-
-        elif (piece.identifier == -2):
-            for i in range(2):
-                current_location -= 1
-                # falta checar a quantidade de passos possíveis para a peça finalizar o tabuleiro
-                if current_location == 1:
-                    print("Piece Finished!")
-                    # só para o botão sair do tabuleiro já que não encontrei uma função pra visibility
-                    current_location = 0
-                elif current_location > 0:
-                    for p in self.piecesInformations:
-                        if p.getLocation() == current_location:
-                            current_location -= 1
-            #piece.setLocation(current_location)
-        """
 
         if piece.identifier > 0:
 
@@ -228,21 +168,20 @@ class ActorPlayer(DogPlayerInterface):
                 progress += 1
                 current_location += 1
 
-                if current_location > 0 and current_location < 8:
+                if current_location > 0 and current_location < 9:
                     for p in self.piecesInformations:
-
                         if p.getLocation() == current_location:
                             current_location += 1
 
-                        elif current_location == 8 and progress == (piece.identifier):
-                            current_location = 9
-                            print("Piece Finished!")
-                            break
+                    if current_location == 8 and progress == piece.identifier:
+                        current_location = 9
+                        print("Piece Finished!")
+                        break
 
-                        elif current_location == 8 and progress > (piece.identifier):
-                            current_location = last_location
-                            print("Invalid Movement!")
-                            break
+                    elif current_location >= 8 and progress != piece.identifier:
+                        current_location = last_location
+                        print("Invalid Movement!")
+                        break
 
         elif piece.identifier < 0:
 
@@ -250,37 +189,47 @@ class ActorPlayer(DogPlayerInterface):
                 progress -= 1
                 current_location -= 1
 
-                if current_location > 0 and current_location < 8:
+                if current_location > 0 and current_location < 9:
                     for p in self.piecesInformations:
                         if p.getLocation() == current_location:
                             current_location -= 1
 
-                        if current_location == 1 and progress == (piece.identifier):
-                            current_location = 0
-                            print("Piece Finished!")
-                            break
+                    if current_location == 1 and progress == piece.identifier:
+                        current_location = 0
+                        print("Piece Finished!")
+                        break
 
-                        elif current_location == 1 and progress > (piece.identifier):
-                            current_location = last_location
-                            print("Invalid Movement!")
-                            break
+                    elif current_location <= 1 and progress < piece.identifier:
+                        current_location = last_location
+                        print("Invalid Movement!")
+                        break
 
         piece.setLocation(current_location)
+        piece.setState(2)
+
+        if self.piece_can_move(piece) == False:
+            piece.setLocation(last_location)
+            print("Invalid move! This Piece is Blocked!")
+            piece.setState(3)
 
         for p in self.piecesInformations:
             print(p.getLocation())
 
-    def update_grid(self):
+    def update_grid(self, piece_button, piece):
+        if (piece.getState() != 1 or piece.getState() == 3):
+            piece_button.grid(row=2, column=piece.getLocation())
 
-        self.peca1.grid(column=self.piece1.getLocation())
-        self.peca2.grid(column=self.piece2.getLocation())
-        self.peca3.grid(column=self.piece3.getLocation())
+        """
+        self.b1_piece_button.grid(column=self.b1_piece.getLocation())
+        self.b2_piece_button.grid(column=self.b2_piece.getLocation())
+        self.b3_piece_button.grid(column=self.b3_piece.getLocation())
 
         self.draw_board()
 
-        self.peca4.grid(column=self.piece4.getLocation())
-        self.peca5.grid(column=self.piece5.getLocation())
-        self.peca6.grid(column=self.piece6.getLocation())
+        self.y1_piece_button.grid(column=self.y1_piece.getLocation())
+        self.y2_piece_button.grid(column=self.y2_piece.getLocation())
+        self.y3_piece_button.grid(column=self.y3_piece.getLocation())
+        """
 
     def start_match(self):
         start_status = self.dog_server_interface.start_match(2)
