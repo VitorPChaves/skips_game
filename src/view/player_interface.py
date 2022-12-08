@@ -48,6 +48,21 @@ class ActorPlayer(DogPlayerInterface):
         self.piecesInformations.append(self.y2_piece)
         self.piecesInformations.append(self.y3_piece)
 
+        self.column2 = Board(False, 2)
+        self.column3 = Board(False, 3)
+        self.column4 = Board(False, 4)
+        self.column5 = Board(False, 5)
+        self.column6 = Board(False, 6)
+        self.column7 = Board(False, 7)
+
+        self.board_places = []
+        self.board_places.append(self.column2)
+        self.board_places.append(self.column3)
+        self.board_places.append(self.column4)
+        self.board_places.append(self.column5)
+        self.board_places.append(self.column6)
+        self.board_places.append(self.column7)
+
         self.b1_piece_button.grid(row=1, column=self.b1_piece.getLocation())
         self.b2_piece_button.grid(row=2, column=self.b2_piece.getLocation())
         self.b3_piece_button.grid(row=3, column=self.b3_piece.getLocation())
@@ -154,13 +169,13 @@ class ActorPlayer(DogPlayerInterface):
                 return False
             else:
                 return True
-        else:
-            return True
+
 
     def possible_moves(self, piece: Piece):
         current_location = piece.getLocation()
         last_location = piece.getLocation()
         progress = 0
+        board = [2, 3, 4, 5, 6, 7]
 
         if piece.identifier > 0:
 
@@ -169,10 +184,19 @@ class ActorPlayer(DogPlayerInterface):
                 current_location += 1
 
                 if current_location > 0 and current_location < 9:
+                    """
                     for p in self.piecesInformations:
                         if p.getLocation() == current_location:
                             current_location += 1
-                            continue
+                    """
+
+                    # Fazer reverse para identifiers negativos
+                    # Garantir que o reverse passa pela ordem correta
+                    # Setar as posiçoes ocupadas para occupied true
+                    for p in self.board_places:
+                        if p.get_location == current_location:
+                            if p.get_occupied == True:
+                                current_location += 1
 
                     if current_location == 8 and progress == piece.identifier:
                         current_location = 9
@@ -182,7 +206,9 @@ class ActorPlayer(DogPlayerInterface):
                     elif current_location >= 8 and progress != piece.identifier:
                         current_location = last_location
                         print("Invalid Movement!")
+                        print(progress)
                         break
+
 
         elif piece.identifier < 0:
 
@@ -191,10 +217,11 @@ class ActorPlayer(DogPlayerInterface):
                 current_location -= 1
 
                 if current_location > 0 and current_location < 9:
-                    for p in reversed(self.piecesInformations):
-                        if p.getLocation() == current_location:
-                            current_location -= 1
-                            continue
+                    for p in self.piecesInformations:
+                        successful = False
+                        while not successful:
+                            if p.getLocation() == current_location:
+                                current_location -= 1
 
                     if current_location == 1 and progress == piece.identifier:
                         current_location = 0
@@ -213,6 +240,7 @@ class ActorPlayer(DogPlayerInterface):
             piece.setLocation(last_location)
             print("Invalid move! This Piece is Blocked!")
             piece.setState(3)
+
 
         for p in self.piecesInformations:
             print(p.getLocation())

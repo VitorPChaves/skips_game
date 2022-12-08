@@ -1,30 +1,17 @@
 class Board:
-    def __init__(self):
-        """
-        self.position1 = Position(False, 3)
-        self.positions = [
-            self.position1 = Position(False, 3), self.position2 = Position(False, 2), Position(False, 1)
-        ]
+    def __init__(self, occupied: bool, position: int):
+        self.occupied = occupied
+        self.position = position
 
-        self.positions = []
-        self.positions.append(Position(False, 3))
-        self.positions.append(Position(False, 2))
-        self.positions.append(Position(False, 1))
-        self.positions.append(Position(False, 1))
-        self.positions.append(Position(False, 2))
-        self.positions.append(Position(False, 3))
-        self.setPositions(self.positions)
-        """
+    def set_occupied(self, occupied):
+        self.occupied = occupied
 
+    def set_position(self, position):
+        self.position = position
 
+    def get_occupied(self):
+        return self.occupied
 
-    def setPositions(self, positions):
-        self.positions = positions
-
-    def getPositions(self):
-        return self.positions
-
-    def checkConditions(self):
-        return 0
-
+    def get_position(self):
+        return self.position
 
