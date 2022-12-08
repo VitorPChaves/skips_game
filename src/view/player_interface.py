@@ -172,6 +172,7 @@ class ActorPlayer(DogPlayerInterface):
                     for p in self.piecesInformations:
                         if p.getLocation() == current_location:
                             current_location += 1
+                            continue
 
                     if current_location == 8 and progress == piece.identifier:
                         current_location = 9
@@ -190,16 +191,17 @@ class ActorPlayer(DogPlayerInterface):
                 current_location -= 1
 
                 if current_location > 0 and current_location < 9:
-                    for p in self.piecesInformations:
+                    for p in reversed(self.piecesInformations):
                         if p.getLocation() == current_location:
                             current_location -= 1
+                            continue
 
                     if current_location == 1 and progress == piece.identifier:
                         current_location = 0
                         print("Piece Finished!")
                         break
 
-                    elif current_location <= 1 and progress < piece.identifier:
+                    elif current_location <= 1 and progress != piece.identifier:
                         current_location = last_location
                         print("Invalid Movement!")
                         break
@@ -216,7 +218,7 @@ class ActorPlayer(DogPlayerInterface):
             print(p.getLocation())
 
     def update_grid(self, piece_button, piece):
-        if (piece.getState() != 1 or piece.getState() == 3):
+        if piece.getState() != 1 and piece.getState() != 3:
             piece_button.grid(row=2, column=piece.getLocation())
 
         """
