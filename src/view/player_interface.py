@@ -124,26 +124,32 @@ class ActorPlayer(DogPlayerInterface):
             # keeps the piece in the correct column
             self.move_piece(piece)
             self.update_grid(piece_button, piece)
+            self.verify_winner()
 
         elif (piece_button["text"]=="**"):
             self.move_piece(piece)
             self.update_grid(piece_button, piece)
+            self.verify_winner()
 
         elif (piece_button["text"]=="***"):
             self.move_piece(piece)
             self.update_grid(piece_button, piece)
+            self.verify_winner()
 
         elif (piece_button["text"]=="#"):
             self.move_piece(piece)
             self.update_grid(piece_button, piece)
+            self.verify_winner()
 
         elif (piece_button["text"]=="##"):
             self.move_piece(piece)
             self.update_grid(piece_button, piece)
+            self.verify_winner()
 
         elif (piece_button["text"]=="###"):
             self.move_piece(piece)
             self.update_grid(piece_button, piece)
+            self.verify_winner()
 
     def piece_can_move(self, piece):
 
@@ -177,6 +183,7 @@ class ActorPlayer(DogPlayerInterface):
             while progress < piece.getIdentifier():
                 progress += 1
                 current_location += 1
+                piece.setState(2)
 
                 if current_location > 0 and current_location < 9:
 
@@ -187,11 +194,14 @@ class ActorPlayer(DogPlayerInterface):
 
                     if current_location == 8 and progress == piece.getIdentifier():
                         current_location = 9
+                        piece.setState(4)
+                        #print(piece.getState())
                         print("Piece Finished!")
                         break
 
                     elif current_location >= 8 and progress != piece.getIdentifier():
                         current_location = last_location
+                        piece.setState(3)
                         print("Invalid Movement!")
                         break
 
@@ -200,6 +210,7 @@ class ActorPlayer(DogPlayerInterface):
             while progress > piece.getIdentifier():
                 progress -= 1
                 current_location -= 1
+                piece.setState(2)
 
                 if current_location > 0 and current_location < 9:
                     # reversed para percorrer o tabuleiro na direcao dos identificadores negativos
@@ -210,21 +221,27 @@ class ActorPlayer(DogPlayerInterface):
 
                     if current_location == 1 and progress == piece.getIdentifier():
                         current_location = 0
+                        piece.setState(4)
                         print("Piece Finished!")
                         break
 
                     elif current_location <= 1 and progress != piece.getIdentifier():
                         current_location = last_location
+                        piece.setState(3)
                         print("Invalid Movement!")
                         break
 
         piece.setLocation(current_location)
-        piece.setState(2)
+        self.occupy_position(piece, last_location)
+        #self.verify_winner()
+
+    def occupy_position(self, piece, last_location):
 
         if self.piece_can_move(piece) == False:
             piece.setLocation(last_location)
-            print("Invalid move! This Piece is Blocked!")
             piece.setState(3)
+            print("Invalid move! This Piece is Blocked!")
+
         elif self.piece_can_move(piece) == True:
             for p in self.board_places:
                 if p.get_position() == last_location:
@@ -234,20 +251,17 @@ class ActorPlayer(DogPlayerInterface):
                     occupied = True
                     p.set_occupied(occupied)
 
-        for p in self.pieces_data:
-            print(p.getLocation())
-        for p in self.board_places:
-            print(p.get_occupied())
+        #self.verify_winner()
 
     def update_grid(self, piece_button, piece):
         if piece.getState() != 1 and piece.getState() != 3:
             piece_button.grid(row=2, column=piece.getLocation())
 
-    def change_turn(self, piece):
-        if piece.getIdentifier() > 0:
+    def change_turn(self):
+        if self.game_state == 2:
+            self.game_state = 3
+        elif self.game_state == 3:
             self.game_state = 2
-
-        return 0
 
     def start_match(self):
         start_status = self.dog_server_interface.start_match(2)
@@ -281,9 +295,21 @@ class ActorPlayer(DogPlayerInterface):
         self.y3_piece_button.grid(row=3, column=self.y3_piece.getLocation())
 
     def verify_winner(self):
-        for p in self.blue_pieces:
-            if p.getState() == 4:
-                self.game_state = 4
+
+        if self.b1_piece.getState() == 4 and self.b2_piece.getState() == 4 and self.b3_piece.getState() == 4:
+            self.game_state = 4
+            print("Player 1 won!")
+        elif self.y1_piece.getState() == 4 and self.y2_piece.getState() == 4 and self.y3_piece.getState() == 4:
+            self.game_state = 5
+            print("Player 2 won!")
+        elif self.b1_piece.getState() != 2 and self.b2_piece.getState() != 2 and self.b3_piece.getState() != 2 and \
+                self.b1_piece.getState() != 1 and self.b2_piece.getState() != 1 and self.b3_piece.getState() != 1:
+            self.game_state = 5
+            print("Player 2 won!")
+        elif self.y1_piece.getState() != 2 and self.y2_piece.getState() != 2 and self.y3_piece.getState() != 2 and \
+                self.y1_piece.getState() != 1 and self.y2_piece.getState() != 1 and self.y3_piece.getState() != 1:
+            self.game_state = 4
+            print("Player 1 won!")
 
     def receive_withdrawal_notification(self):
         self.game_state = 6
