@@ -3,10 +3,10 @@ class Board:
         self.occupied = occupied
         self.position = position
 
-    def set_occupied(self, occupied):
+    def set_occupied(self, occupied: bool):
         self.occupied = occupied
 
-    def set_position(self, position):
+    def set_position(self, position: int):
         self.position = position
 
     def get_occupied(self):
