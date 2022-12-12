@@ -22,13 +22,19 @@ class ActorPlayer(DogPlayerInterface):
         self.localPlayer = Player()
         self.remotePlayer = Player()
 
-        self.b1_piece_button = Button(self.window, text="*", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.move_piece(self.b1_piece))
-        self.b2_piece_button = Button(self.window, text="**", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.move_piece(self.b2_piece))
-        self.b3_piece_button = Button(self.window, text="***", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.move_piece(self.b3_piece))
+        self.b1_piece_button = Button(self.window, text="*", height=3, width=3,
+                                      highlightbackground='#0000FF', command=lambda: self.move_piece(self.b1_piece))
+        self.b2_piece_button = Button(self.window, text="**", height=3, width=3,
+                                      highlightbackground='#0000FF', command=lambda: self.move_piece(self.b2_piece))
+        self.b3_piece_button = Button(self.window, text="***", height=3, width=3,
+                                      highlightbackground='#0000FF', command=lambda: self.move_piece(self.b3_piece))
 
-        self.y1_piece_button = Button(self.window, text="#", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.move_piece(self.y1_piece))
-        self.y2_piece_button = Button(self.window, text="##", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.move_piece(self.y2_piece))
-        self.y3_piece_button = Button(self.window, text="###", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.move_piece(self.y3_piece))
+        self.y1_piece_button = Button(self.window, text="#", height=3, width=3,
+                                      highlightbackground='#F7EC3E', command=lambda: self.move_piece(self.y1_piece))
+        self.y2_piece_button = Button(self.window, text="##", height=3, width=3,
+                                      highlightbackground='#F7EC3E', command=lambda: self.move_piece(self.y2_piece))
+        self.y3_piece_button = Button(self.window, text="###", height=3, width=3,
+                                      highlightbackground='#F7EC3E', command=lambda: self.move_piece(self.y3_piece))
 
         self.b1_piece = Piece(False, 1, 1, 1, self.b1_piece_button)
         self.b2_piece = Piece(False, 2, 1, 1, self.b2_piece_button)
@@ -211,64 +217,68 @@ class ActorPlayer(DogPlayerInterface):
                 return current_location
 
     def move_piece(self, piece: Piece):
-        current_location = piece.getLocation()
-        last_location = piece.getLocation()
-        progress = 0
+        if self.is_player_turn(piece) == True:
 
-        if piece.getIdentifier() > 0:
-            while progress < piece.getIdentifier():
-                progress += 1
-                current_location += 1
-                piece.setState(2)
+            current_location = piece.getLocation()
+            last_location = piece.getLocation()
+            progress = 0
 
-                if current_location > 0 and current_location < 9:
+            if piece.getIdentifier() > 0:
+                while progress < piece.getIdentifier():
+                    progress += 1
+                    current_location += 1
+                    piece.setState(2)
 
-                    for p in self.board_places:
-                        if p.get_position() == current_location:
-                            if p.get_occupied() == True:
-                                current_location += 1
+                    if current_location > 0 and current_location < 9:
 
-                    if current_location == 8 and progress == piece.getIdentifier():
-                        current_location = 9
-                        piece.setState(4)
-                        # print(piece.getState())
-                        print("Piece Finished!")
-                        break
+                        for p in self.board_places:
+                            if p.get_position() == current_location:
+                                if p.get_occupied() == True:
+                                    current_location += 1
 
-                    elif current_location >= 8 and progress != piece.getIdentifier():
-                        current_location = last_location
-                        piece.setState(3)
-                        print("Invalid Movement!")
-                        return
+                        if current_location == 8 and progress == piece.getIdentifier():
+                            current_location = 9
+                            piece.setState(4)
+                            # print(piece.getState())
+                            print("Piece Finished!")
+                            break
 
-        elif piece.getIdentifier() < 0:
+                        elif current_location >= 8 and progress != piece.getIdentifier():
+                            current_location = last_location
+                            piece.setState(3)
+                            print("Invalid Movement!")
+                            return
 
-            while progress > piece.getIdentifier():
-                progress -= 1
-                current_location -= 1
-                piece.setState(2)
+            elif piece.getIdentifier() < 0:
 
-                if current_location > 0 and current_location < 9:
-                    # reversed para percorrer o tabuleiro na direcao dos identificadores negativos
-                    for p in reversed(self.board_places):
-                        if p.get_position() == current_location:
-                            if p.get_occupied() == True:
-                                current_location -= 1
+                while progress > piece.getIdentifier():
+                    progress -= 1
+                    current_location -= 1
+                    piece.setState(2)
 
-                    if current_location == 1 and progress == piece.getIdentifier():
-                        current_location = 0
-                        piece.setState(4)
-                        print("Piece Finished!")
-                        break
+                    if current_location > 0 and current_location < 9:
+                        # reversed para percorrer o tabuleiro na direcao dos identificadores negativos
+                        for p in reversed(self.board_places):
+                            if p.get_position() == current_location:
+                                if p.get_occupied() == True:
+                                    current_location -= 1
 
-                    elif current_location <= 1 and progress != piece.getIdentifier():
-                        current_location = last_location
-                        piece.setState(3)
-                        print("Invalid Movement!")
-                        return
+                        if current_location == 1 and progress == piece.getIdentifier():
+                            current_location = 0
+                            piece.setState(4)
+                            print("Piece Finished!")
+                            break
 
-        piece.setLocation(current_location)
-        self.occupy_position(piece, last_location)
+                        elif current_location <= 1 and progress != piece.getIdentifier():
+                            current_location = last_location
+                            piece.setState(3)
+                            print("Invalid Movement!")
+                            return
+
+            piece.setLocation(current_location)
+            self.occupy_position(piece, last_location)
+        elif self.is_player_turn(piece) == False:
+            print("It's not your turn, wait the other player move")
 
         # self.verify_winner()
 
@@ -291,12 +301,10 @@ class ActorPlayer(DogPlayerInterface):
                     p.set_occupied(occupied)
             move_to_send["action"] = str(piece.getLocation())
             move_to_send["match_status"] = "next"
+            self.change_turn()
             self.dog_server_interface.send_move(move_to_send)
             self.update_grid(piece)
             self.verify_winner()
-
-
-
 
     def update_grid(self, piece):
         if piece.getState() != 1 and piece.getState() != 3:
