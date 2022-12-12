@@ -283,6 +283,8 @@ class ActorPlayer(DogPlayerInterface):
         # self.verify_winner()
 
     def occupy_position(self, piece, last_location):
+        #finished: bool, identifier: int, location: int, state: int, piece_button
+
         move_to_send = {}
 
         if self.piece_can_move(piece) == False:
@@ -292,6 +294,8 @@ class ActorPlayer(DogPlayerInterface):
 
         # Se a peca pode mover...
         elif self.piece_can_move(piece) == True:
+
+            # changes the occupation of board positions
             for p in self.board_places:
                 if p.get_position() == last_location:
                     occupied = False
@@ -299,7 +303,13 @@ class ActorPlayer(DogPlayerInterface):
                 if p.get_position() == piece.getLocation():
                     occupied = True
                     p.set_occupied(occupied)
-            move_to_send["action"] = str(piece.getLocation())
+
+            # posiciona a peca
+            move_to_send["piece_finished"] = str(piece.getFinished())
+            move_to_send["piece_identifier"] = str(piece.getIdentifier())
+            move_to_send["piece_location"] = str(piece.getLocation())
+            move_to_send["piece_state"] = str(piece.getState())
+            move_to_send["piece_button"] = str(piece.getPieceButton())
             move_to_send["match_status"] = "next"
             self.change_turn()
             self.dog_server_interface.send_move(move_to_send)
@@ -326,12 +336,11 @@ class ActorPlayer(DogPlayerInterface):
         messagebox.showinfo(message=message)
 
     def receive_move(self, a_move):
-        grid_column = int(a_move)
-        if self.game_state == 5:
-            for p in self.pieces_data:
-                self.verify_destination(p)
-                if p.getLocation() == grid_column:
-                    self.move_piece(p)
+        piece = int(a_move["piece_identifier"])
+
+        for p in self.pieces_data:
+            if p.getIdentifier() == piece:
+                self.move_piece(p)
 
     def start_game(self):
         match_status = self.game_state
