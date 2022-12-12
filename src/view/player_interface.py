@@ -17,7 +17,10 @@ class ActorPlayer(DogPlayerInterface):
         self.window.geometry('700x500')
         self.window.resizable(False, False)
 
-        self.game_state = 2     # 1 = no match / 2 = match running blue turn / 3 = match running yellow turn / 4 = blue winner / 5 = yellow winner / 6 = withdrawal
+        self.label = Label(self.window, text="ˆturnˆ", height=3, width=5, font="arial 10")
+        self.label.grid(row=8, column=0)
+
+        self.game_state = 1     # 1 = no match / 2 = match running blue turn / 3 = match running yellow turn / 4 = blue winner / 5 = yellow winner / 6 = withdrawal
 
         self.localPlayer = Player()
         self.remotePlayer = Player()
@@ -87,6 +90,8 @@ class ActorPlayer(DogPlayerInterface):
         self.y2_piece_button.grid(row=2, column=self.y2_piece.getLocation())
         self.y3_piece_button.grid(row=3, column=self.y3_piece.getLocation())
 
+        self.update_label()
+
         # Cria uma menu bar para poder iniciar a partida
         self.menubar = Menu(self.window)
         self.menubar.option_add("*tearOff", FALSE)
@@ -96,17 +101,18 @@ class ActorPlayer(DogPlayerInterface):
         self.menubar.add_cascade(menu=self.menu_file, label="File")
 
         self.menu_file.add_command(
-            label="Iniciar jogo", command=self.start_match)
+            label="Start Game", command=self.start_match)
         self.menu_file.add_command(
-            label="Restaurar estado inicial", command=self.start_game)
+            label="Reset Game", command=self.reset_game)
+        self.menu_file.add_command(
+            label="Withdrawal", command=self.receive_withdrawal_notification)
+
 
         player_name = simpledialog.askstring(
             title="Player identification", prompt="Qual o seu nome?")
         self.dog_server_interface = DogActor()
         message = self.dog_server_interface.initialize(player_name, self)
         messagebox.showinfo(message=message)
-
-        self.move_to_send = {}
 
         self.window.mainloop()
 
@@ -166,55 +172,6 @@ class ActorPlayer(DogPlayerInterface):
                 return True
         else:
             return True
-
-    def verify_destination(self, column: int):
-        for piece in self.pieces_data:
-
-            current_location = piece.getLocation()
-            last_location = piece.getLocation()
-            progress = 0
-
-            if piece.getIdentifier() > 0:
-
-                while progress < piece.getIdentifier():
-                    progress += 1
-                    current_location += 1
-                    piece.setState(2)
-
-                    if current_location > 0 and current_location < 9:
-
-                        for p in self.board_places:
-                            if p.get_position() == current_location:
-                                if p.get_occupied() == True:
-                                    current_location += 1
-
-                        if current_location == 8 and progress == piece.getIdentifier():
-                            current_location = 9
-                            piece.setState(4)
-                            print("Piece Finished!")
-                            break
-
-            elif piece.getIdentifier() < 0:
-
-                while progress > piece.getIdentifier():
-                    progress -= 1
-                    current_location -= 1
-                    piece.setState(2)
-
-                    if current_location > 0 and current_location < 9:
-                        for p in reversed(self.board_places):
-                            if p.get_position() == current_location:
-                                if p.get_occupied() == True:
-                                    current_location -= 1
-
-                        if current_location == 1 and progress == piece.getIdentifier():
-                            current_location = 0
-                            piece.setState(4)
-                            print("Piece Finished!")
-                            break
-
-            if current_location == column:
-                return current_location
 
     def move_piece(self, piece: Piece):
         if self.is_player_turn(piece) == True:
@@ -277,14 +234,12 @@ class ActorPlayer(DogPlayerInterface):
 
             piece.setLocation(current_location)
             self.occupy_position(piece, last_location)
+
         elif self.is_player_turn(piece) == False:
             print("It's not your turn, wait the other player move")
 
-        # self.verify_winner()
 
     def occupy_position(self, piece, last_location):
-        #finished: bool, identifier: int, location: int, state: int, piece_button
-
         move_to_send = {}
 
         if self.piece_can_move(piece) == False:
@@ -304,21 +259,41 @@ class ActorPlayer(DogPlayerInterface):
                     occupied = True
                     p.set_occupied(occupied)
 
-            # posiciona a peca
-            move_to_send["piece_finished"] = str(piece.getFinished())
             move_to_send["piece_identifier"] = str(piece.getIdentifier())
-            move_to_send["piece_location"] = str(piece.getLocation())
-            move_to_send["piece_state"] = str(piece.getState())
-            move_to_send["piece_button"] = str(piece.getPieceButton())
             move_to_send["match_status"] = "next"
             self.change_turn()
             self.dog_server_interface.send_move(move_to_send)
-            self.update_grid(piece)
-            self.verify_winner()
+
+        self.update_grid(piece)
+        self.verify_winner()
+
 
     def update_grid(self, piece):
         if piece.getState() != 1 and piece.getState() != 3:
             piece.getPieceButton().grid(row=2, column=piece.getLocation())
+
+        self.update_label()
+
+    def update_label(self):
+        if self.game_state == 1:
+            self.label = Label(self.window, text="START", height=5, width=10, font="arial 10")
+            self.label.grid(row=7, column=0)
+        elif self.game_state == 2:
+            self.label = Label(self.window, text="BLUE", height=5, width=10, font="arial 10")
+            self.label.grid(row=7, column=0)
+        elif self.game_state == 3:
+            self.label = Label(self.window, text="YELLOW", height=5, width=10, font="arial 10")
+            self.label.grid(row=7, column=0)
+        elif self.game_state == 4:
+            self.label = Label(self.window, text="B won!", height=5, width=10, font="arial 10")
+            self.label.grid(row=7, column=0)
+        elif self.game_state == 5:
+            self.label = Label(self.window, text="Y won!", height=5, width=10, font="arial 10")
+            self.label.grid(row=7, column=0)
+        elif self.game_state == 6:
+            self.label = Label(self.window, text="withdraw", height=5, width=10, font="arial 10")
+            self.label.grid(row=7, column=0)
+
 
     def change_turn(self):
         if self.game_state == 2:
@@ -328,6 +303,7 @@ class ActorPlayer(DogPlayerInterface):
 
     def start_match(self):
         start_status = self.dog_server_interface.start_match(2)
+        self.game_state = 2
         message = start_status.get_message()
         messagebox.showinfo(message=message)
 
@@ -348,6 +324,8 @@ class ActorPlayer(DogPlayerInterface):
             self.reset_game()
 
     def reset_game(self):
+        self.game_state = 1
+
         for p in self.blue_pieces:
             p.setLocation(1)
 
@@ -372,17 +350,18 @@ class ActorPlayer(DogPlayerInterface):
         elif self.y1_piece.getState() == 4 and self.y2_piece.getState() == 4 and self.y3_piece.getState() == 4:
             self.game_state = 5
             print("Player 2 won!")
-        elif self.b1_piece.getState() != 2 and self.b2_piece.getState() != 2 and self.b3_piece.getState() != 2 and \
-                self.b1_piece.getState() != 1 and self.b2_piece.getState() != 1 and self.b3_piece.getState() != 1:
+        elif self.b1_piece.getState() != 2 and self.b2_piece.getState() != 2 and self.b3_piece.getState() != 2 and self.b1_piece.getState() != 1 and self.b2_piece.getState() != 1 and self.b3_piece.getState() != 1:
             self.game_state = 5
             print("Player 2 won!")
-        elif self.y1_piece.getState() != 2 and self.y2_piece.getState() != 2 and self.y3_piece.getState() != 2 and \
-                self.y1_piece.getState() != 1 and self.y2_piece.getState() != 1 and self.y3_piece.getState() != 1:
+        elif self.y1_piece.getState() != 2 and self.y2_piece.getState() != 2 and self.y3_piece.getState() != 2 and self.y1_piece.getState() != 1 and self.y2_piece.getState() != 1 and self.y3_piece.getState() != 1:
             self.game_state = 4
             print("Player 1 won!")
 
     def receive_withdrawal_notification(self):
+        move_to_send = {}
+        move_to_send["match_status"] = "interrupted"
         self.game_state = 6
-
+        self.dog_server_interface.send_move(move_to_send)
+        self.reset_game()
 
 ActorPlayer()
