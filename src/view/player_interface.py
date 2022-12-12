@@ -23,21 +23,23 @@ class ActorPlayer(DogPlayerInterface):
         self.localPlayer = Player()
         self.remotePlayer = Player()
 
-        self.b1_piece = Piece(False, 1, 1, 1)
-        self.b2_piece = Piece(False, 2, 1, 1)
-        self.b3_piece = Piece(False, 3, 1, 1)
 
-        self.y1_piece = Piece(False, -1, 8, 1)
-        self.y2_piece = Piece(False, -2, 8, 1)
-        self.y3_piece = Piece(False, -3, 8, 1)
 
-        self.b1_piece_button = Button(self.window, text="*", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.select_piece(self.b1_piece_button, self.b1_piece))
-        self.b2_piece_button = Button(self.window, text="**", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.select_piece(self.b2_piece_button, self.b2_piece))
-        self.b3_piece_button = Button(self.window, text="***", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.select_piece(self.b3_piece_button, self.b3_piece))
+        self.b1_piece_button = Button(self.window, text="*", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.move_piece(self.b1_piece))
+        self.b2_piece_button = Button(self.window, text="**", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.move_piece(self.b2_piece))
+        self.b3_piece_button = Button(self.window, text="***", height=3, width=3, highlightbackground='#0000FF', command=lambda: self.move_piece(self.b3_piece))
 
-        self.y1_piece_button = Button(self.window, text="#", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.select_piece(self.y1_piece_button, self.y1_piece))
-        self.y2_piece_button = Button(self.window, text="##", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.select_piece(self.y2_piece_button, self.y2_piece))
-        self.y3_piece_button = Button(self.window, text="###", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.select_piece(self.y3_piece_button, self.y3_piece))
+        self.y1_piece_button = Button(self.window, text="#", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.move_piece(self.y1_piece))
+        self.y2_piece_button = Button(self.window, text="##", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.move_piece(self.y2_piece))
+        self.y3_piece_button = Button(self.window, text="###", height=3, width=3, highlightbackground='#F7EC3E', command=lambda: self.move_piece(self.y3_piece))
+
+        self.b1_piece = Piece(False, 1, 1, 1, self.b1_piece_button)
+        self.b2_piece = Piece(False, 2, 1, 1, self.b2_piece_button)
+        self.b3_piece = Piece(False, 3, 1, 1, self.b3_piece_button)
+
+        self.y1_piece = Piece(False, -1, 8, 1, self.y1_piece_button)
+        self.y2_piece = Piece(False, -2, 8, 1, self.y2_piece_button)
+        self.y3_piece = Piece(False, -3, 8, 1, self.y3_piece_button)
 
         self.pieces_data = []
         self.pieces_data.append(self.b1_piece)
@@ -98,6 +100,8 @@ class ActorPlayer(DogPlayerInterface):
         message = self.dog_server_interface.initialize(player_name, self)
         messagebox.showinfo(message=message)
 
+        self.move_to_send = {}
+
         self.window.mainloop()
 
     def draw_board(self):
@@ -117,39 +121,6 @@ class ActorPlayer(DogPlayerInterface):
         for p in range(10):
             position = Button(self.window, text="-", height=3, width=3, highlightbackground='#F0160F')
             position.grid(row=4, column=p)
-
-    def select_piece(self, piece_button, piece):
-
-        if (piece_button["text"]=="*"):
-            # keeps the piece in the correct column
-            self.move_piece(piece)
-            self.update_grid(piece_button, piece)
-            self.verify_winner()
-
-        elif (piece_button["text"]=="**"):
-            self.move_piece(piece)
-            self.update_grid(piece_button, piece)
-            self.verify_winner()
-
-        elif (piece_button["text"]=="***"):
-            self.move_piece(piece)
-            self.update_grid(piece_button, piece)
-            self.verify_winner()
-
-        elif (piece_button["text"]=="#"):
-            self.move_piece(piece)
-            self.update_grid(piece_button, piece)
-            self.verify_winner()
-
-        elif (piece_button["text"]=="##"):
-            self.move_piece(piece)
-            self.update_grid(piece_button, piece)
-            self.verify_winner()
-
-        elif (piece_button["text"]=="###"):
-            self.move_piece(piece)
-            self.update_grid(piece_button, piece)
-            self.verify_winner()
 
     def piece_can_move(self, piece):
 
@@ -172,6 +143,55 @@ class ActorPlayer(DogPlayerInterface):
                 return True
         else:
             return True
+
+    def verify_destination(self, column: int):
+        for piece in self.pieces_data:
+
+            current_location = piece.getLocation()
+            last_location = piece.getLocation()
+            progress = 0
+
+            if piece.getIdentifier() > 0:
+
+                while progress < piece.getIdentifier():
+                    progress += 1
+                    current_location += 1
+                    piece.setState(2)
+
+                    if current_location > 0 and current_location < 9:
+
+                        for p in self.board_places:
+                            if p.get_position() == current_location:
+                                if p.get_occupied() == True:
+                                    current_location += 1
+
+                        if current_location == 8 and progress == piece.getIdentifier():
+                            current_location = 9
+                            piece.setState(4)
+                            print("Piece Finished!")
+                            break
+
+            elif piece.getIdentifier() < 0:
+
+                while progress > piece.getIdentifier():
+                    progress -= 1
+                    current_location -= 1
+                    piece.setState(2)
+
+                    if current_location > 0 and current_location < 9:
+                        for p in reversed(self.board_places):
+                            if p.get_position() == current_location:
+                                if p.get_occupied() == True:
+                                    current_location -= 1
+
+                        if current_location == 1 and progress == piece.getIdentifier():
+                            current_location = 0
+                            piece.setState(4)
+                            print("Piece Finished!")
+                            break
+
+            if current_location == column:
+                return current_location
 
     def move_piece(self, piece: Piece):
         current_location = piece.getLocation()
@@ -236,12 +256,14 @@ class ActorPlayer(DogPlayerInterface):
         #self.verify_winner()
 
     def occupy_position(self, piece, last_location):
+        move_to_send = {}
 
         if self.piece_can_move(piece) == False:
             piece.setLocation(last_location)
             piece.setState(3)
             print("Invalid move! This Piece is Blocked!")
 
+        # Se a peca pode mover...
         elif self.piece_can_move(piece) == True:
             for p in self.board_places:
                 if p.get_position() == last_location:
@@ -251,11 +273,19 @@ class ActorPlayer(DogPlayerInterface):
                     occupied = True
                     p.set_occupied(occupied)
 
+            move_to_send["action"] = str(piece.getLocation())
+            move_to_send["match_status"] = "next"
+            self.dog_server_interface.send_move(move_to_send)
+            self.update_grid(piece)
+            self.verify_winner()
+
+
+
         #self.verify_winner()
 
-    def update_grid(self, piece_button, piece):
+    def update_grid(self, piece):
         if piece.getState() != 1 and piece.getState() != 3:
-            piece_button.grid(row=2, column=piece.getLocation())
+            piece.getPieceButton().grid(row=2, column=piece.getLocation())
 
     def change_turn(self):
         if self.game_state == 2:
@@ -271,6 +301,14 @@ class ActorPlayer(DogPlayerInterface):
     def receive_start(self, start_status):
         message = start_status.get_message()
         messagebox.showinfo(message=message)
+
+    def receive_move(self, a_move):
+        grid_column = int(a_move)
+        if self.game_state == 5:
+            for p in self.pieces_data:
+                self.verify_destination(p)
+                if p.getLocation() == grid_column:
+                    self.move_piece(p)
 
     def start_game(self):
         match_status = self.game_state

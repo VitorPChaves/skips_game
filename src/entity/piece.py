@@ -1,9 +1,13 @@
 class Piece:
-    def __init__(self, finished: bool, identifier: int, location: int, state: int):
+    def __init__(self, finished: bool, identifier: int, location: int, state: int, piece_button):
         self.finished = finished
         self.identifier = identifier
         self.location = location
         self.state = state
+        self.piece_button = piece_button
+
+    def getPieceButton(self):
+        return self.piece_button
 
     def setFinished(self, finished: bool):
         self.finished = finished
