@@ -268,6 +268,7 @@ class ActorPlayer(DogPlayerInterface):
         self.verify_winner()
 
 
+
     def update_grid(self, piece):
         if piece.getState() != 1 and piece.getState() != 3:
             piece.getPieceButton().grid(row=2, column=piece.getLocation())
