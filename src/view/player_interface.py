@@ -283,7 +283,7 @@ class ActorPlayer(DogPlayerInterface):
         # self.verify_winner()
 
     def occupy_position(self, piece, last_location):
-        #finished: bool, identifier: int, location: int, state: int, piece_button
+        # finished: bool, identifier: int, location: int, state: int, piece_button
 
         move_to_send = {}
 
@@ -313,8 +313,8 @@ class ActorPlayer(DogPlayerInterface):
             move_to_send["match_status"] = "next"
             self.change_turn()
             self.dog_server_interface.send_move(move_to_send)
-            self.update_grid(piece)
-            self.verify_winner()
+        self.update_grid(piece)
+        self.verify_winner()
 
     def update_grid(self, piece):
         if piece.getState() != 1 and piece.getState() != 3:
@@ -372,12 +372,10 @@ class ActorPlayer(DogPlayerInterface):
         elif self.y1_piece.getState() == 4 and self.y2_piece.getState() == 4 and self.y3_piece.getState() == 4:
             self.game_state = 5
             print("Player 2 won!")
-        elif self.b1_piece.getState() != 2 and self.b2_piece.getState() != 2 and self.b3_piece.getState() != 2 and \
-                self.b1_piece.getState() != 1 and self.b2_piece.getState() != 1 and self.b3_piece.getState() != 1:
+        elif self.b1_piece.getState() != 2 and self.b2_piece.getState() != 2 and self.b3_piece.getState() != 2 and self.b1_piece.getState() != 1 and self.b2_piece.getState() != 1 and self.b3_piece.getState() != 1:
             self.game_state = 5
             print("Player 2 won!")
-        elif self.y1_piece.getState() != 2 and self.y2_piece.getState() != 2 and self.y3_piece.getState() != 2 and \
-                self.y1_piece.getState() != 1 and self.y2_piece.getState() != 1 and self.y3_piece.getState() != 1:
+        elif self.y1_piece.getState() != 2 and self.y2_piece.getState() != 2 and self.y3_piece.getState() != 2 and self.y1_piece.getState() != 1 and self.y2_piece.getState() != 1 and self.y3_piece.getState() != 1:
             self.game_state = 4
             print("Player 1 won!")
 
